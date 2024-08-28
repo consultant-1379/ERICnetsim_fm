@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+<modelVersion>4.0.0</modelVersion>
+<groupId>com.ericsson.cifwk.netsim</groupId>
+<artifactId>ERICnetsim_fm</artifactId>
+<packaging>rpm</packaging>
+<version>1.0-SNAPSHOT</version>
+<name>ERICnetsim_fm</name>
+<url>http://maven.apache.org</url>
+<build>
+	<plugins>
+		<plugin>
+                	<groupId>org.codehaus.mojo</groupId>
+                	<artifactId>rpm-maven-plugin</artifactId>
+                	<version>2.1-alpha-1</version>
+			<extensions>true</extensions>
+                	<executions>
+                    		<execution>
+                        		<goals>
+                            		<goal>rpm</goal>
+                        		</goals>
+                    		</execution>
+                	</executions>
+	 		<configuration>
+			 	<finalName>ERICnetsim_fm</finalName>
+			 	<copyright>2012,ericsson</copyright>
+                    		<distribution>netsim_fm</distribution>
+                    		<group>Application/Collectors</group>
+                    		<packager>eahedav</packager>
+                    		<defineStatements>
+                       			<defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+                    		</defineStatements>
+                    		<mappings>
+                        		<mapping>
+                            		<directory>/netsim/ERICnetsim_fm</directory>
+                            		<filemode>755</filemode>
+                            		<username>netsim</username>
+                            		<groupname>netsim</groupname>
+			    			<sources>
+                                			<source>
+                                    			<location>src/main/ERICnetsim_fm</location>
+                                			</source>
+                            			</sources>
+                        		</mapping>
+                    		</mappings>
+	      	    		<preinstallScriptlet>
+                        		<script>echo "I am now installing ERICnetsim_fm"</script>
+                    		</preinstallScriptlet>
+ 			</configuration>
+		</plugin>
+	</plugins>
+</build>
+<distributionManagement>
+	<snapshotRepository>
+        	<id>STnexus</id>
+        	<name>ERICnetsim_fm</name>
+		<url>http://localhost:8081/nexus-2.1.2/content/repositories/ERICnetsim_fm</url>
+   	</snapshotRepository>
+</distributionManagement>
+</project>
+

@@ -1,0 +1,164 @@
+#!/bin/sh
+
+PROJECT=r7
+SHIPMENT=K
+OSS=atrcxb1311-1312ossfs
+DEPLOYMENT=LTEST
+
+#### security ####
+SECURITY_LEVEL=3	#1 == none, 2 or 3
+OMSAS_SERVER=auto	#auto or hostname
+OMSAS_USER=auto		#auto or omsas username
+
+ARNESECURITY=ON
+SECURITYFILES_LOCATION=/net/attemfs1/export/files/wranst/${PROJECT}/sh${SHIPMENT}/pems/
+
+#### NETSIM SERVERS ####!#
+SERVERS="netsimlin222 netsimlin305 netsimlin353 netsimlin354 netsimlin355"
+netsimlin222_list="RNC01 RNC02 RNC03 RNC04"
+netsimlin305_list="RNC05 RNC06 RNC07 RNC08 RNC09 RNC10 RNC11 RNC12" 
+netsimlin353_list="RNC13 RNC14 RNC15 RNC16 RNC17 RNC18 RNC19 RNC20"
+netsimlin354_list="RNC21 RNC22 RNC23 RNC24 RNC25 RNC26 RNC27 RNC28"
+netsimlin355_list="RNC29 RNC30 RNC31 RNC32 RNC33 RNC34"
+
+HOST=`hostname`
+LIST=`eval echo '$'${HOST}_list`
+
+
+#### Mimtype setting   ####
+#### Default is N      ####
+RNC04_mimtype=N_1
+RNC05_mimtype=N_2
+RNC06_mimtype=N_3
+
+#### Cell Type setting ####
+#### DEFAULT is type C ####
+###
+##0.1% of Total RBS in network####
+PtOne_PercentRBS="RNC05RBS01 RNC05RBS02 RNC05RBS03 RNC05RBS04 RNC05RBS05 RNC05RBS06"
+
+## 1 RNC and 0.5% of Total RBS in network####
+RESTART_RNC=RNC05
+Half_PercentRBS="RNC05RBS01 RNC05RBS02 RNC05RBS03 RNC05RBS04 RNC05RBS05 RNC05RBS06 RNC05RBS07 RNC05RBS08 RNC05RBS09 RNC05RBS10 RNC05RBS11 RNC05RBS12 RNC05RBS13 RNC05RBS14 RNC05RBS15 RNC05RBS16 RNC05RBS17 RNC05RBS18 RNC05RBS19 RNC05RBS20 RNC05RBS21 RNC05RBS22 RNC05RBS23 RNC05RBS24 RNC05RBS25 RNC05RBS26 RNC05RBS27 RNC05RBS28 RNC05RBS29 RNC05RBS30 RNC05RBS31 RNC05RBS32"
+
+
+#####SOURCE Default CONFIG for shipment ########
+if [ -r /netsim/shipment.cfg ] ; then
+. /netsim/shipment.cfg
+elif [ -r /net/attemfs1/export/files/wranst/${PROJECT}/sh${SHIPMENT}/shipment.cfg ] ; then
+. /net/attemfs1/export/files/wranst/${PROJECT}/sh${SHIPMENT}/shipment.cfg
+fi
+
+##### Section for overriding default values in project.cfg or shipment.cfg ##############
+##### Put values after this line ###########
+GPEH_WORKLOAD_LIST="default:32505856:0-11,18-23 max_expected:32505856:12-17"
+
+#### mimVersion setting ####
+N_RNC_ON_OSS_SERVER=M.1.60.K.2.0
+N_1_RNC_ON_OSS_SERVER=M.1.25.K.1.2
+N_2_RNC_ON_OSS_SERVER=L.1.58.J.5.0
+N_3_RNC_ON_OSS_SERVER=L.1.105.J.6.1
+N_4_RNC_ON_OSS_SERVER=K.9.16.H.10.0
+N_RBS_ON_OSS_SERVER=N.1.31.K.2.0
+N_1_RBS_ON_OSS_SERVER=N.1.12.K.1.2
+N_2_RBS_ON_OSS_SERVER=M.1.8.J.5.0
+N_3_RBS_ON_OSS_SERVER=M.1.25.J.6.1
+N_4_RBS_ON_OSS_SERVER=L.5.6.H.10.0
+N_RXI_ON_OSS_SERVER=J.1.50.K.2.0
+N_1_RXI_ON_OSS_SERVER=J.1.11.K.1.1
+N_2_RXI_ON_OSS_SERVER=H.2.50.J.3.0
+N_3_RXI_ON_OSS_SERVER=H.2.5.H.11.0
+N_4_RXI_ON_OSS_SERVER=H.2.3.H.10.0
+N_LTE_ON_OSS_SERVER=B.1.1.K.2.0
+N_1_LTE_ON_OSS_SERVER=A.9.50.J.9.1
+N_2_LTE_ON_OSS_SERVER=A.9.2.J.8.1
+N_TD_ON_OSS_SERVER=B.1.12.B.1.0
+N_1_TD_ON_OSS_SERVER=A.22.20.A.7.0
+N_1_VER=`echo $N_1_RNC_ON_OSS_SERVER | cut -d. -f1 | cut -dv -f2`
+N_2_VER=`echo $N_2_RNC_ON_OSS_SERVER | cut -d. -f1 | cut -dv -f2`
+N_3_VER=`echo $N_3_RNC_ON_OSS_SERVER | cut -d. -f1 | cut -dv -f2`
+N_4_VER=`echo $N_4_RNC_ON_OSS_SERVER | cut -d. -f1 | cut -dv -f2`
+
+N_1_VER=`echo $N_1_RNC_ON_OSS_SERVER | cut -d. -f1 | cut -dv -f2`
+N_2_VER=`echo $N_2_RNC_ON_OSS_SERVER | cut -d. -f1 | cut -dv -f2`
+N_3_VER=`echo $N_3_RNC_ON_OSS_SERVER | cut -d. -f1 | cut -dv -f2`
+N_4_VER=`echo $N_4_RNC_ON_OSS_SERVER | cut -d. -f1 | cut -dv -f2`
+
+#### others ####
+VERSION=inst
+PIPE=/netsim/inst/netsim_pipe
+CREATE_DEAD_NODES_XML=NO
+CREATE_ARW_XML=NO
+CREATE_ARW_XML=NO
+
+#### simulation ####
+SIMSERVER=ftp.athtem.eei.ericsson.se
+WRAN_SIMDIR=/sims/O11/SystemTest/11.2/WRAN/V4
+
+
+##### PM #####
+PMDIR="/var/www/html/scripts/automation_wran/netsim_pm_setup/"
+N_TYPEC_RNC_FILE=${PMDIR}/template/RNC_NODE_MODEL_`echo $N_RNC_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_TYPEF_RNC_FILE=${PMDIR}/template/TYPE_F_RNC_NODE_MODEL_`echo $N_RNC_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_RBS_FILE=${PMDIR}/template/RBS_NODE_MODEL_`echo $N_RBS_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_RXI_FILE=${PMDIR}/template/RANAG_NODE_MODEL_`echo $N_RXI_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_1_TYPEC_RNC_FILE=${PMDIR}/template/RNC_NODE_MODEL_`echo $N_1_RNC_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_1_RBS_FILE=${PMDIR}/template/RBS_NODE_MODEL_`echo $N_1_RBS_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_1_RXI_FILE=${PMDIR}/template/RANAG_NODE_MODEL_`echo $N_1_RXI_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_2_TYPEC_RNC_FILE=${PMDIR}/template/RNC_NODE_MODEL_`echo $N_2_RNC_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_2_RBS_FILE=${PMDIR}/template/RBS_NODE_MODEL_`echo $N_2_RBS_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_2_RXI_FILE=${PMDIR}/template/RANAG_NODE_MODEL_`echo $N_2_RXI_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_3_TYPEC_RNC_FILE=${PMDIR}/template/RNC_NODE_MODEL_`echo $N_3_RNC_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_3_RBS_FILE=${PMDIR}/template/RBS_NODE_MODEL_`echo $N_3_RBS_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_3_RXI_FILE=${PMDIR}/template/RANAG_NODE_MODEL_`echo $N_3_RXI_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_4_TYPEC_RNC_FILE=${PMDIR}/template/RNC_NODE_MODEL_`echo $N_4_RNC_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_4_RBS_FILE=${PMDIR}/template/RBS_NODE_MODEL_`echo $N_4_RBS_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_4_RXI_FILE=${PMDIR}/template/RANAG_NODE_MODEL_`echo $N_4_RXI_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+N_LTE_FILE=${PMDIR}/template/ERBS_NODE_MODEL_`echo $N_LTE_ON_OSS_SERVER | sed 's/\./_/g'`.xml.template
+
+N_TYPEC_RNC_CNTRPROPFILE=${PMDIR}/template/RNC_NODE_MODEL_`echo $N_RNC_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_TYPEF_RNC_CNTRPROPFILE=${PMDIR}/template/TYPE_F_RNC_NODE_MODEL_`echo $N_RNC_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_RBS_CNTRPROPFILE=${PMDIR}/template/RBS_NODE_MODEL_`echo $N_RBS_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_RXI_CNTRPROPFILE=${PMDIR}/template/RANAG_NODE_MODEL_`echo $N_RXI_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_1_TYPEC_RNC_CNTRPROPFILE=${PMDIR}/template/RNC_NODE_MODEL_`echo $N_1_RNC_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_1_RBS_CNTRPROPFILE=${PMDIR}/template/RBS_NODE_MODEL_`echo $N_1_RBS_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_1_RXI_CNTRPROPFILE=${PMDIR}/template/RANAG_NODE_MODEL_`echo $N_1_RXI_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_2_TYPEC_RNC_CNTRPROPFILE=${PMDIR}/template/RNC_NODE_MODEL_`echo $N_2_RNC_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_2_RBS_CNTRPROPFILE=${PMDIR}/template/RBS_NODE_MODEL_`echo $N_2_RBS_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_2_RXI_CNTRPROPFILE=${PMDIR}/template/RANAG_NODE_MODEL_`echo $N_2_RXI_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_3_TYPEC_RNC_CNTRPROPFILE=${PMDIR}/template/RNC_NODE_MODEL_`echo $N_3_RNC_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_3_RBS_CNTRPROPFILE=${PMDIR}/template/RBS_NODE_MODEL_`echo $N_3_RBS_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_3_RXI_CNTRPROPFILE=${PMDIR}/template/RANAG_NODE_MODEL_`echo $N_3_RXI_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_4_TYPEC_RNC_CNTRPROPFILE=${PMDIR}/template/RNC_NODE_MODEL_`echo $N_4_RNC_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_4_RBS_CNTRPROPFILE=${PMDIR}/template/RBS_NODE_MODEL_`echo $N_4_RBS_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+N_4_RXI_CNTRPROPFILE=${PMDIR}/template/RANAG_NODE_MODEL_`echo $N_4_RXI_ON_OSS_SERVER | sed 's/\./_/g'`.xml.cntrprop
+
+#### ARNE ####
+ARNEDIR=/export/home/ejershe/TCM-WebPage/wran/arne_files/${PROJECT}/sh${SHIPMENT}
+ARNETEMPLATEDIR=${ARNEDIR}/arne_templates
+UTC_IN_TEMPLATE=UTC+00
+NEW_UTC=UTC+00
+SUBNETWORK_IN_TEMPLATE=ONRM_RootMo
+NEW_SUBNETWORK=ONRM_RootMo
+FTPSERVER_INTEMPLATE=atrcus147
+FTPSERVERIP_INTEMPLATE=159.107.177.142
+NEWFTPSERVER=atrcus147
+NEWFTPSERVERIP=159.107.177.142
+N_RNC_IN_TEMPLATE=vH.20.57
+N_RBS_IN_TEMPLATE=vK.1.9
+N_RXI_IN_TEMPLATE=vF.1.5
+N_LTE_IN_TEMPLATE=vA.4.0
+TYPEC_TEMPLATE=${ARNETEMPLATEDIR}/187_template.xml
+RNC01_TYPEC_TEMPLATE=${ARNETEMPLATEDIR}/RNC01_187_template.xml
+C_TEMPLATESUBNET=10.20.41
+TYPEF_TEMPLATE=${ARNETEMPLATEDIR}/768_template.xml
+F_TEMPLATESUBNET1=192.15.49
+F_TEMPLATESUBNET2=192.15.50
+F_TEMPLATESUBNET3=192.15.51
+F_TEMPLATESUBNET4=192.15.52
+
+##### FM #####
+AVCSERVER="netsimlin287 netsimlin288"
+NUMOFAVCRNC=4
+RESTARTRNC=RNC05
+
